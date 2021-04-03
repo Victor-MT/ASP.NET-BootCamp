@@ -27,6 +27,7 @@ namespace DevCars.API.Entities
         public string Brand { get; private set; }
         public string Model { get; private set; }
         public int Year { get; private set; }
+        public bool IsAutomatic { get; set; }
         public decimal Price { get; private set; }
         public string Color { get; private set; }
         public DateTime ProductioDate { get; private set; }
