@@ -12,7 +12,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DevCars.API
@@ -33,11 +35,26 @@ namespace DevCars.API
 
             var connectionString = Configuration.GetConnectionString("DevCarCs");
             services.AddDbContext<DevCarsDbContext>(options => options.UseSqlServer(connectionString));
-
+            // services.AddDbContext<DevCarsDbContext>(options => options.UseInMemoryDatabase("DevCarCs"));
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DevCars.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { 
+                    Title = "DevCars.API", 
+                    Version = "v1" ,
+                    Contact = new OpenApiContact()
+                    {
+                        Name = "Victor Hugo Torres",
+                        Email = "victor.martins1699@gmail.com",
+                        Url = new Uri("https://www.linkedin.com/in/martins-torres/")
+                    }
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
             });
         }
 

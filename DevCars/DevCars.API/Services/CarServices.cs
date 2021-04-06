@@ -1,7 +1,10 @@
-﻿using DevCars.API.Entities;
+﻿using Dapper;
+using DevCars.API.Entities;
 using DevCars.API.InputModels;
 using DevCars.API.Persistence;
 using DevCars.API.ViewModels;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +15,30 @@ namespace DevCars.API.Services
     public class CarServices
     {
         private readonly DevCarsDbContext _dbContext;
-        public CarServices(DevCarsDbContext dbContext)
+        private readonly string _connectionString;
+        public CarServices(DevCarsDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            //_connectionString = dbContext.Database.GetDbConnection().ConnectionString; // another way to get connectionString, but in this way when you use the Inmemory database function it gonna throw an exception
+            _connectionString = configuration.GetConnectionString("DevCarsCs");
         }
 
         public List<CarItemViewModel> GetAllCars()
         {
-            List<CarItemViewModel> carsListResponse = _dbContext.Cars
-                .Select(c => new CarItemViewModel(c.Id,c.Brand,c.Model,c.Price))
-                .ToList();
-
-            return carsListResponse;
+            // using Entity Framework Core
+            //List<CarItemViewModel> carsListResponse = _dbContext.Cars
+            //    .Where(c => c.Status == CarStatusEnum.Available)
+            //    .Select(c => new CarItemViewModel(c.Id,c.Brand,c.Model,c.Price))
+            //    .ToList();
+            
+            // using dapper
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                var query = @"SELECT Id, Brand, Model, Price WHERE Status = 0";
+                var carsListResponse = sqlConnection.Query<CarItemViewModel>(query).ToList();
+                return carsListResponse;
+            }
+                
         }
 
         public CarDetailsViewModel GetCarById(int id)
@@ -67,8 +82,14 @@ namespace DevCars.API.Services
                 return false;
 
             car.Update(model.Color, model.Price);
-            _dbContext.SaveChanges();
+            //_dbContext.SaveChanges(); // using Entity Framework Core
 
+            // using dapper
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                var query = "UPDATE Cars SET Color = @color, Price = @price WHERE Id = @id";
+                sqlConnection.Execute(query, new { color = car.Color, price = car.Price, id = car.Id });
+            }
             return true;
         }
 

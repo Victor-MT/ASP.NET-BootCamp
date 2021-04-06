@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DevCars.API</name>
+    </assembly>
+    <members>
+        <member name="M:DevCars.API.Controllers.CarsController.Post(DevCars.API.InputModels.AddCarInputModel)">
+            <summary>
+            Register a car
+            </summary>
+            <remarks>
+            Example Request :
+            {
+                "brand": "Chevrolet",
+                "model": "Onix",
+                "vinCode": "ABC123",
+                "year": 2021,
+                "color": grey,
+                "productionDate": "2021-03-19"S
+            }
+            </remarks>
+            <param name="model"> Entry data</param>
+            <returns> Created car </returns>
+            <response code="201"> Success Operation </response>
+            <response code="400"> Bad Request Operation </response>
+        </member>
+    </members>
+</doc>

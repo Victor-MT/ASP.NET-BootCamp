@@ -3,6 +3,7 @@ using DevCars.API.InputModels;
 using DevCars.API.Persistence;
 using DevCars.API.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,12 @@ namespace DevCars.API.Services
     public class CustomerServices
     {
         private readonly DevCarsDbContext _dbContext;
-        public CustomerServices(DevCarsDbContext dbContext)
+        private readonly string _connectionString;
+        public CustomerServices(DevCarsDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            //_connectionString = dbContext.Database.GetDbConnection().ConnectionString; // another way to get connectionString, but in this way when you use the Inmemory database function it gonna throw an exception
+            _connectionString = configuration.GetConnectionString("DevCarsCs");
         }
 
         public OrderDetailsViewModel GetOrder(int id, int orderId)
